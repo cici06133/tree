@@ -165,6 +165,7 @@ def majority_cnt(class_list):
     sorted_class_count=sorted(class_count.items(),key=operator.itemgetter(1),reverse=True)
     return sorted_class_count[0][0]
 
+
 def creat_tree(dataset,labels):
     # 取出数据集中每条样本的“标签列”（通常是最后一列）
     class_list=[example[-1] for example in dataset]
@@ -247,6 +248,90 @@ def calculate_accuracy(tree, dataset, labels):
     
     accuracy = correct / total * 100
     return accuracy
+
+
+
+def classify(input_tree, feat_labels, test_vec):
+    """
+    使用决策树进行分类预测
+    
+    参数:
+        input_tree: 训练好的决策树
+        feat_labels: 特征标签列表
+        test_vec: 测试样本特征向量
+    返回:
+        预测的类别标签
+    """
+    first_str = next(iter(input_tree))
+    second_dict = input_tree[first_str]
+    feat_index = feat_labels.index(first_str)
+    
+    for key in second_dict.keys():
+        if test_vec[feat_index] == key:
+            if type(second_dict[key]).__name__ == 'dict':
+                class_label = classify(second_dict[key], feat_labels, test_vec)
+            else:
+                class_label = second_dict[key]
+            return class_label
+
+
+def detailed_accuracy(tree, dataset, labels):
+    """
+    计算详细准确率统计
+    """
+    correct_count = 0
+    total_count = len(dataset)
+    confusion_info = {}
+    
+    for data in dataset:
+        features = data[:-1]
+        true_label = data[-1]
+        predicted_label = classify(tree, labels, features)
+        
+        # 统计正确率
+        if predicted_label == true_label:
+            correct_count += 1
+        
+        # 统计混淆信息
+        if true_label not in confusion_info:
+            confusion_info[true_label] = {'correct': 0, 'total': 0, 'errors': {}}
+        
+        confusion_info[true_label]['total'] += 1
+        
+        if predicted_label == true_label:
+            confusion_info[true_label]['correct'] += 1
+        else:
+            if predicted_label not in confusion_info[true_label]['errors']:
+                confusion_info[true_label]['errors'][predicted_label] = 0
+            confusion_info[true_label]['errors'][predicted_label] += 1
+    
+    # 计算总体准确率
+    overall_accuracy = correct_count / total_count
+    
+    # 打印详细结果
+    print("=" * 50)
+    print("训练集准确率分析报告")
+    print("=" * 50)
+    print(f"总体准确率: {overall_accuracy:.4f} ({overall_accuracy*100:.2f}%)")
+    print(f"正确分类: {correct_count}/{total_count}")
+    print(f"错误分类: {total_count - correct_count}/{total_count}")
+    print()
+    
+    # 打印每个类别的准确率
+    print("各类别准确率:")
+    for true_label, info in confusion_info.items():
+        class_accuracy = info['correct'] / info['total']
+        print(f"  {true_label}: {info['correct']}/{info['total']} ({class_accuracy:.2%})")
+        
+        # 打印错误分类详情
+        if info['errors']:
+            print(f"    错误分类为: {info['errors']}")
+    
+    return overall_accuracy
+
+
+
+
 
 
 # 支持中文
@@ -373,6 +458,7 @@ def create_plot(my_tree):
     plt.tight_layout()
     plt.show()
 
+<<<<<<< HEAD
 # # ========== 运行：建树 + 绘图 ==========
 # # 示例数据集：天气与打球 (Play Tennis)
 # weather_data = [
@@ -445,3 +531,67 @@ if __name__ == "__main__":
 # # 生成决策树
 # tree = creat_tree(weather_data, labels[:])  # 注意传入拷贝 labels[:]
 # create_plot(tree)
+=======
+# ========== 运行：建树 + 绘图 ==========
+# 示例数据集：天气与打球 (Play Tennis)
+#weather_data = [
+    #['Sunny', 'Hot', 'High', True, 'No'],
+    #['Overcast', 'Hot', 'High', False, 'Yes'],
+    #['Rain', 'Mild', 'High', False, 'Yes'],
+    #['Rain', 'Cool', 'Normal', False, 'Yes'],
+    #['Overcast', 'Cool', 'Normal', True, 'Yes'],
+    #['Sunny', 'Mild', 'High', False, 'No'],
+    #['Sunny', 'Cool', 'Normal', False, 'Yes'],
+    #['Sunny', 'Mild', 'Normal', True, 'Yes'],
+    #['Overcast', 'Mild', 'High', True, 'Yes'],
+    #['Overcast', 'Hot', 'Normal', False, 'Yes'],
+    #['Rain', 'Mild', 'High', True, 'No']
+#]
+
+# 特征标签
+#labels = ['Outlook', 'Temperature', 'Humidity', 'Windy']
+
+# 生成决策树
+#tree = creat_tree(weather_data, labels[:])  # 注意传入拷贝 labels[:]
+#create_plot(tree)
+
+# lenses_data = (r'E:\物联网\machine learning\tree\lenses.txt')
+
+# def load_data(filepath):
+#     data = []
+#     fr = open(filepath)
+#     for line in fr:
+#         line = line.strip().split('\t') 
+#         data.append(line)
+#     return data
+# labels_lenses = ['年龄', '屈光','散光','泪液分泌']
+# dataset = load_data(lenses_data)
+# tree = creat_tree(dataset,labels_lenses[:])
+# create_plot(tree)
+
+# 主程序
+if __name__ == "__main__":
+    lenses_data = r'E:\物联网\machine learning\tree\lenses.txt'
+
+    def load_data(filepath):
+        data = []
+        fr = open(filepath, 'r', encoding='utf-8')
+        for line in fr:
+            line = line.strip().split('\t') 
+            data.append(line)
+        fr.close()
+        return data
+    
+    labels_lenses = ['年龄', '屈光','散光','泪液分泌']
+    dataset = load_data(lenses_data)
+    
+    # 构建决策树
+    tree = creat_tree(dataset, labels_lenses[:])
+    
+    # 计算准确率
+    accuracy = detailed_accuracy(tree, dataset, labels_lenses)
+    
+    # 可视化决策树
+    create_plot(tree)
+#
+>>>>>>> c8d09473209759f189e8cf34d6daa1ab44d745d8
