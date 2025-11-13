@@ -458,7 +458,7 @@ def create_plot(my_tree):
     plt.tight_layout()
     plt.show()
 
-<<<<<<< HEAD
+
 # # ========== 运行：建树 + 绘图 ==========
 # # 示例数据集：天气与打球 (Play Tennis)
 # weather_data = [
@@ -531,7 +531,7 @@ if __name__ == "__main__":
 # # 生成决策树
 # tree = creat_tree(weather_data, labels[:])  # 注意传入拷贝 labels[:]
 # create_plot(tree)
-=======
+
 # ========== 运行：建树 + 绘图 ==========
 # 示例数据集：天气与打球 (Play Tennis)
 #weather_data = [
@@ -594,4 +594,3 @@ if __name__ == "__main__":
     # 可视化决策树
     create_plot(tree)
 #
->>>>>>> c8d09473209759f189e8cf34d6daa1ab44d745d8
